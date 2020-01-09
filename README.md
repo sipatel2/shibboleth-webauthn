@@ -17,3 +17,5 @@ docker run -it -v $OUTPUTDIR:/output -e "BUILD_ENV=LINUX" my/shibbidp_configbuil
 Continue to follow the steps to build and run the actual IdP.
 
 The WebAuthn registration page would be located at https://hostname/idp/webauthn/registration.  The registration is stored in memory only.  In production, Duke is storing registration data in a database using a modified version of RegistrationStorage.java.
+
+A couple of other items to note.  At Duke, all authentication methods (password, Duo, WebAuthn, social, etc) go through a single flow that decide what should actually be done based on what the user has registered and what the current authentication requirements are.  The flow in this repo just handles WebAuthn and removes the configuration for the standard password flow to make it easier to demo/test.  Also, at Duke, after a successful WebAuthn authentication, the user's username is added to a cookie to allow the user to authenticate next time without having to enter a username.  That functionality has not yet been added here.
