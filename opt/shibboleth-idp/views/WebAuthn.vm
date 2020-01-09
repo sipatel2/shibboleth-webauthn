@@ -1,0 +1,129 @@
+##
+## Velocity context will contain the following properties
+## flowExecutionUrl - the form action location
+## flowRequestContext - the Spring Web Flow RequestContext
+## flowExecutionKey - the SWF execution key (this is built into the flowExecutionUrl)
+## profileRequestContext - root of context tree
+## authenticationContext - context with authentication request information
+## authenticationErrorContext - context with login error state
+## authenticationWarningContext - context with login warning state
+## rpUIContext - the context with SP UI information from the metadata
+## encoder - HTMLEncoder class
+## request - HttpServletRequest
+## response - HttpServletResponse
+## environment - Spring Environment object for property resolution
+## custom - arbitrary object injected by deployer
+##
+#set ($rpContext = $profileRequestContext.getSubcontext('net.shibboleth.idp.profile.context.RelyingPartyContext'))
+##
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>#springMessageText("idp.title", "Web Login Service")</title>
+        <link rel="stylesheet" type="text/css" href="$request.getContextPath()/css/main.css">
+
+        <script type="text/javascript" src="/idp/js/jquery-3.3.1.min.js"></script>
+
+        <script src="/idp/webauthn/lib/text-encoding-0.7.0/encoding.js"></script>
+        <script src="/idp/webauthn/lib/text-encoding-0.7.0/encoding-indexes.js"></script>
+        <script src="/idp/webauthn/lib/fetch/fetch-3.0.0.js"></script>
+        <script src="/idp/webauthn/lib/base64js/base64js-1.3.0.min.js"></script>
+        <script src="/idp/webauthn/js/base64url.js"></script>
+        <script src="/idp/webauthn/js/webauthn.js"></script>
+        <script src="/idp/webauthn/js/custom_webauthn.js"></script>
+    </head>
+    <body>
+    <div class="wrapper">
+      <div class="container">
+        <header>
+          <img src="$request.getContextPath()#springMessage("idp.logo")" alt="#springMessageText("idp.logo.alt-text", "logo")">
+        </header>
+
+        <div class="content">
+          <div class="column one">
+            #parse("login-error.vm")
+
+            <form id="webauthnform" action="$flowExecutionUrl" method="post">
+
+            #set ($serviceName = $rpUIContext.serviceName)
+            #if ($serviceName && !$rpContext.getRelyingPartyId().contains($serviceName))
+              <legend>
+                #springMessageText("idp.login.loginTo", "Login to") $encoder.encodeForHTML($serviceName)
+              </legend>
+            #end
+                        
+            <div class="form-element-wrapper">
+              <label for="username">#springMessageText("idp.login.username", "Username")</label>
+              <input class="form-element form-field" id="username" name="j_username" type="text" />
+            </div>
+
+            <div class="form-element-wrapper">
+              <button id="use-webauthn" class="form-element form-button" type="button" name="use-webauthn">
+                #springMessageText("idp.login.login", "Login")
+              </button>
+            </div>
+
+            <input type="hidden" name="webauthnformdata" id="webauthnformdata" />
+            <input type="hidden" name="_eventId" value="proceed" />
+            </form>
+
+			#*
+              //
+              //    SP Description & Logo (optional)
+              //    These idpui lines will display added information (if available
+              //    in the metadata) about the Service Provider (SP) that requested
+              //    authentication. These idpui lines are "active" in this example
+              //    (not commented out) - this extra SP info will be displayed.
+              //    Remove or comment out these lines to stop the display of the
+              //    added SP information.
+              //
+            *#
+            #set ($logo = $rpUIContext.getLogo())
+            #if ($logo)
+              <img src= "$encoder.encodeForHTMLAttribute($logo)"
+                  alt="$encoder.encodeForHTMLAttribute($serviceName)">
+            #end
+            #set ($desc = $rpUIContext.getServiceDescription())
+            #if ($desc)
+              $encoder.encodeForHTML($desc)
+            #end
+            
+          </div>
+          <div class="column two">
+            <ul class="list list-help">
+              <li class="list-help-item"><a href="#springMessageText("idp.url.helpdesk", "#")"><span class="item-marker">&rsaquo;</span> #springMessageText("idp.login.needHelp", "Need Help?")</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="container container-footer">
+          <p class="footer-text">#springMessageText("idp.footer", "Insert your footer text here.")</p>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#use-webauthn').click(function(e) {
+          e.preventDefault();
+          if ($('#username').val().length > 0) {
+            $('#use-webauthn').html('#springMessageText("idp.login.pleasewait", "Logging in, please wait...")');
+            return authenticate(username = $("#username").val());
+          }
+        });
+
+        $('#username').keypress(function(e) {
+          if(e.keyCode == 13) {
+            e.preventDefault();
+            $('#use-webauthn').click();
+          }
+        });
+      });
+    </script>
+    
+ 	</body>
+</html>
