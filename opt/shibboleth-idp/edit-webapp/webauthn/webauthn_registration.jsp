@@ -171,7 +171,7 @@
               <input type="text" id="credentialNickname"/>
             </div>
 
-            <button id="submit" type="button" class="active" disabled="disabled">Register device with Duke Unlock<i class="button-icon-right fa fa-arrow-right"></i></button>
+            <button id="submit" type="button" class="active" disabled="disabled">Register device with WebAuthn<i class="button-icon-right fa fa-arrow-right"></i></button>
             <p id="status"></p>
           </div>
         </form>
