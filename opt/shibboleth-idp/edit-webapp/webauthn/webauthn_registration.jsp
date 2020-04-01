@@ -4,7 +4,6 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta charset="utf-8"/>
-    <link rel="icon" type="image/png" href="https://shib.oit.duke.edu/idms-assets/src/img/favicon.ico">
     <script src="https://shib.oit.duke.edu/idms-assets/dist/bundle.js"></script>
     <title>WebAuthn</title>
 
