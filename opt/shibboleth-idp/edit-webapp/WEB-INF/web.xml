@@ -8,7 +8,7 @@
         same named beans in previous files. -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath*:/META-INF/net.shibboleth.idp/preconfig.xml,${idp.home}/system/conf/global-system.xml,classpath*:/META-INF/net.shibboleth.idp/config.xml,classpath*:/META-INF/net.shibboleth.idp/postconfig.xml</param-value>
+        <param-value>classpath*:/META-INF/net.shibboleth.idp/preconfig.xml,classpath:/net/shibboleth/idp/conf/global-system.xml,classpath*:/META-INF/net.shibboleth.idp/postconfig.xml</param-value>
     </context-param>
     
     <context-param>
@@ -27,6 +27,7 @@
     </listener>
     
     <!-- Filters and filter mappings -->
+    
     <!-- Try and force I18N, probably won't help much. -->
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
@@ -38,6 +39,15 @@
         <init-param>
             <param-name>forceEncoding</param-name>
             <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <!-- Automates SameSite handling until Java API catches up. -->
+    <filter>
+        <filter-name>SameSiteCookieFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>shibboleth.SameSiteCookieFilter</param-value>
         </init-param>
     </filter>
     <!-- Lets us lump repeated Set-Cookie headers into one, something containers rarely support. -->
@@ -64,6 +74,11 @@
         <filter-name>SLF4JMDCServletFilter</filter-name>
         <filter-class>net.shibboleth.idp.log.SLF4JMDCServletFilter</filter-class>
     </filter>
+    
+    <filter-mapping>
+        <filter-name>SameSiteCookieFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <filter-mapping>
         <filter-name>CookieBufferingFilter</filter-name>
         <url-pattern>/profile/admin/*</url-pattern>
@@ -111,7 +126,7 @@
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>${idp.home}/system/conf/mvc-beans.xml, ${idp.home}/system/conf/webflow-config.xml</param-value>
+            <param-value>classpath*:/META-INF/net/shibboleth/idp/mvc/preconfig.xml,classpath:/net/shibboleth/idp/conf/mvc-beans.xml,classpath:/net/shibboleth/idp/conf/webflow-config.xml,classpath*:/META-INF/net/shibboleth/idp/mvc/postconfig.xml</param-value>
         </init-param>
         <init-param>
             <param-name>contextClass</param-name>
@@ -164,6 +179,7 @@
     </error-page>
 
     <session-config>
+        <session-timeout>15</session-timeout>
         <cookie-config>
             <http-only>true</http-only>
             <secure>true</secure>
@@ -171,15 +187,28 @@
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 
-    <!-- Block commonly flagged methods by using an empty auth-constraint. -->
+    <!-- Allow intended methods by using an absent auth-constraint. -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Non-API Content</web-resource-name>
             <url-pattern>/*</url-pattern>
-            <http-method>PUT</http-method>
-            <http-method>PATCH</http-method>
-            <http-method>DELETE</http-method>
-            <http-method>TRACE</http-method>
+            <http-method>GET</http-method>
+            <http-method>HEAD</http-method>
+            <http-method>OPTIONS</http-method>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+        <!-- no auth-constraint tag here -->
+    </security-constraint>
+
+    <!-- Disallow other methods by using an empty auth-constraint. -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Non-API Content</web-resource-name>
+            <url-pattern>/*</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+            <http-method-omission>HEAD</http-method-omission>
+            <http-method-omission>OPTIONS</http-method-omission>
+            <http-method-omission>POST</http-method-omission>
         </web-resource-collection>
         <auth-constraint/>
     </security-constraint>

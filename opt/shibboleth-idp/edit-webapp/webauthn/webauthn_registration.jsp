@@ -7,7 +7,7 @@
     <script src="https://shib.oit.duke.edu/idms-assets/dist/bundle.js"></script>
     <title>WebAuthn</title>
 
-    <script type="text/javascript" src="/idp/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/idp/js/jquery-3.6.0.min.js"></script>
 
     <script src="/idp/webauthn/lib/text-encoding-0.7.0/encoding.js"></script>
     <script src="/idp/webauthn/lib/text-encoding-0.7.0/encoding-indexes.js"></script>
