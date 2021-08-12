@@ -6,19 +6,19 @@ Duke University is running a WebAuthn integration with Shibboleth in production.
 
 This builds a Shibboleth IdP (v4) using the InCommon Trusted Access Platform container along with its configuration builder and then adds a WebAuthn flow on top of it.
 
-Update the properties in opt/shibboleth-idp/conf/authn/WebAuthn.properties.
-Update LDAP certificate in opt/shibboleth-idp/credentials/ldap-server.crt.
+Update the properties in opt/shibboleth-idp/conf/authn/WebAuthn.properties.  
+Update LDAP certificate in opt/shibboleth-idp/credentials/ldap-server.crt.  
 
 Build the configuration:
 
-docker build -t my/shibbidp_configbuilder_with_webauthn_container .
-OUTPUTDIR=some-output-directory
-docker run -it -v $OUTPUTDIR:/output -e "BUILD_ENV=LINUX" my/shibbidp_configbuilder_with_webauthn_container
+docker build -t my/shibbidp_configbuilder_with_webauthn_container .  
+OUTPUTDIR=some-output-directory  
+docker run -it -v $OUTPUTDIR:/output -e "BUILD_ENV=LINUX" my/shibbidp_configbuilder_with_webauthn_container  
 
 Build and run the actual IdP:
 
-docker build --rm -t my/shibb-idp-tier $OUTPUTDIR
-docker run -d --name shib-idp -p 443:443 my/shibb-idp-tier
+docker build --rm -t my/shibb-idp-tier $OUTPUTDIR  
+docker run -d --name shib-idp -p 443:443 my/shibb-idp-tier  
 
 The WebAuthn registration page would be located at https://localhost/idp/webauthn/registration.  The registration is stored in memory only.  In production, Duke is storing registration data in a database using a modified version of RegistrationStorage.java.
 
